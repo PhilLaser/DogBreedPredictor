@@ -1,7 +1,6 @@
 import os
-import cv2
 import numpy as np
-from flask import Flask, render_template, request, flash, url_for, send_from_directory
+from flask import Flask, render_template, request, flash
 from keras.preprocessing import image
 from keras.models import load_model
 from werkzeug.utils import secure_filename, redirect
@@ -46,21 +45,11 @@ def upload_file():
     return render_template('predict_breed.html')
 
 
-@app.route('/uploads/<filename>')
-def uploaded_file(filename):
-    return render_template('prediction.html')
-
-    # return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
-
-
 if __name__ == '__main__':
     app.run(debug=True)
 
 
 def predict(img_path):
-    # load an input image
-    orig = np.array(cv2.imread(img_path))
-
     img = image.load_img(img_path, target_size=(299, 299))
     x = image.img_to_array(img)
     x = x / 255
@@ -74,8 +63,3 @@ def predict(img_path):
     result.sort(reverse=True, key=lambda y: y[1])
     (class_name, prob) = result[0]
     return class_name, prob
-    # cv2.putText(orig, "Class name:", (10, 30), cv2.FONT_HERSHEY_DUPLEX, 0.6, (200, 255, 155), 2)
-    # cv2.putText(orig, class_name[10:], (10, 50), cv2.FONT_HERSHEY_DUPLEX, 0.6, (200, 255, 155), 2)
-    # cv2.putText(orig, "Probability: ", (10, 80), cv2.FONT_HERSHEY_DUPLEX, 0.6, (200, 255, 155), 2)
-    # cv2.putText(orig, "{:.2f}%".format(prob), (10, 100), cv2.FONT_HERSHEY_DUPLEX, 0.6, (200, 255, 155), 2)
-    # cv2.imwrite(img_path, orig)
