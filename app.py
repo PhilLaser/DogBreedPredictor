@@ -8,7 +8,7 @@ from werkzeug.utils import secure_filename, redirect
 from brain.inference import predict
 import tensorflow as tf
 
-UPLOAD_FOLDER = 'D:/PycharmProjects/DogBreedPredictor/static/images/'
+UPLOAD_FOLDER = 'D:/PycharmProjects/DogBreedPredictor/static/'
 ALLOWED_EXTENSIONS = {'png', 'jpg'}
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -40,14 +40,17 @@ def upload_file():
             filename = secure_filename(file.filename)
             pred_name = filename[:-4] + '_pred' + filename[-4:]
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], pred_name))
-            predict(os.path.join(app.config['UPLOAD_FOLDER'], pred_name))
-            return redirect(url_for('uploaded_file', filename=pred_name))
+            (class_name, prob) = predict(os.path.join(app.config['UPLOAD_FOLDER'], pred_name))
+            # img_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            return render_template('prediction.html', name=class_name[10:], proba="{:.2f}%".format(prob), image=pred_name)
     return render_template('predict_breed.html')
 
 
 @app.route('/uploads/<filename>')
 def uploaded_file(filename):
-    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+    return render_template('prediction.html')
+
+    # return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
 
 if __name__ == '__main__':
@@ -70,8 +73,9 @@ def predict(img_path):
     result = [(classes[i], float(pred[i]) * 100.0) for i in range(len(pred))]
     result.sort(reverse=True, key=lambda y: y[1])
     (class_name, prob) = result[0]
-    cv2.putText(orig, "Class name:", (10, 30), cv2.FONT_HERSHEY_DUPLEX, 0.6, (200, 255, 155), 2)
-    cv2.putText(orig, class_name[10:], (10, 50), cv2.FONT_HERSHEY_DUPLEX, 0.6, (200, 255, 155), 2)
-    cv2.putText(orig, "Probability: ", (10, 80), cv2.FONT_HERSHEY_DUPLEX, 0.6, (200, 255, 155), 2)
-    cv2.putText(orig, "{:.2f}%".format(prob), (10, 100), cv2.FONT_HERSHEY_DUPLEX, 0.6, (200, 255, 155), 2)
-    cv2.imwrite(img_path, orig)
+    return class_name, prob
+    # cv2.putText(orig, "Class name:", (10, 30), cv2.FONT_HERSHEY_DUPLEX, 0.6, (200, 255, 155), 2)
+    # cv2.putText(orig, class_name[10:], (10, 50), cv2.FONT_HERSHEY_DUPLEX, 0.6, (200, 255, 155), 2)
+    # cv2.putText(orig, "Probability: ", (10, 80), cv2.FONT_HERSHEY_DUPLEX, 0.6, (200, 255, 155), 2)
+    # cv2.putText(orig, "{:.2f}%".format(prob), (10, 100), cv2.FONT_HERSHEY_DUPLEX, 0.6, (200, 255, 155), 2)
+    # cv2.imwrite(img_path, orig)
