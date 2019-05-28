@@ -6,7 +6,7 @@ from keras.models import load_model
 from werkzeug.utils import secure_filename, redirect
 import tensorflow as tf
 
-UPLOAD_FOLDER = 'D:/PycharmProjects/DogBreedPredictor/static/'
+UPLOAD_FOLDER = os.getcwd() + '/static/'
 ALLOWED_EXTENSIONS = {'png', 'jpg'}
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
