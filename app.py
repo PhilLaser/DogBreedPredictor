@@ -4,7 +4,6 @@ from flask import Flask, render_template, request, flash
 from keras.preprocessing import image
 from keras.models import load_model
 from werkzeug.utils import secure_filename, redirect
-from brain.inference import predict
 import tensorflow as tf
 
 UPLOAD_FOLDER = 'D:/PycharmProjects/DogBreedPredictor/static/'
